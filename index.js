@@ -66,7 +66,7 @@ app.post('/api/addperson',(req,res)=>{
         return res.status(400).send('name is not set, name filed required')
     }
     const newObj = {
-        id : (data.length)+1, 
+        id : ((data.length)+1).toString(), 
         name: name,
         number : number,
     }
