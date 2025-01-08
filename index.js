@@ -31,9 +31,7 @@ const data = [
     }
 ]
 
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-  });
+
 
 const date = new Date()
 app.get('/api/persons',(req,res)=>{
@@ -79,6 +77,9 @@ app.post('/api/addperson',(req,res)=>{
     return res.status(200).send(newObj)
 })
 
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  });
 app.listen(3001,()=>{
     console.log("server is running at 3001")
 })
