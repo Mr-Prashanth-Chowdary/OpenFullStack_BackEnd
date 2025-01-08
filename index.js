@@ -66,7 +66,7 @@ app.post('/api/addperson',(req,res)=>{
         return res.status(400).send('name is not set, name filed required')
     }
     const newObj = {
-        id : id, 
+        id :Math.floor(Math.random() * 1000000).toString(), 
         name: name,
         number : number,
     }
