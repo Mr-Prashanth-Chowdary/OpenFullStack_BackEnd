@@ -31,6 +31,10 @@ const data = [
     }
 ]
 
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  });
+
 const date = new Date()
 app.get('/api/persons',(req,res)=>{
     return res.send(data)
