@@ -58,7 +58,7 @@ app.delete('/api/deletepersons/:id',(req,res)=>{
 })
 
 app.post('/api/addperson',(req,res)=>{
-    const {id, name, number} = req.body
+    const {name, number} = req.body
     if(data.some((person)=> person.name === name || person.number === number )){
         return res.status(400).send('the person name or number already exist')
     }
@@ -66,12 +66,12 @@ app.post('/api/addperson',(req,res)=>{
         return res.status(400).send('name is not set, name filed required')
     }
     const newObj = {
-        id :Math.floor(Math.random() * 1000000).toString(), 
+        id : Math.floor(Math.random() * 1000000).toString(), 
         name: name,
         number : number,
     }
     data.push(newObj)
-    return res.status(200).send("the person is add to contacts")
+    return res.status(200).send(newObj)
 })
 
 app.listen(3001,()=>{
