@@ -58,7 +58,7 @@ app.delete('/api/deletepersons/:id',(req,res)=>{
 })
 
 app.post('/api/addperson',(req,res)=>{
-    const {name, number} = req.body
+    const {id, name, number} = req.body
     if(data.some((person)=> person.name === name || person.number === number )){
         return res.status(400).send('the person name or number already exist')
     }
@@ -66,7 +66,7 @@ app.post('/api/addperson',(req,res)=>{
         return res.status(400).send('name is not set, name filed required')
     }
     const newObj = {
-        id : ((data.length)+1).toString(), 
+        id : id, 
         name: name,
         number : number,
     }
