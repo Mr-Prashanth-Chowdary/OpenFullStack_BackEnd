@@ -3,6 +3,7 @@ const morgan = require('morgan')
 const Contact = require('./mongoDB')
 const cors = require('cors')
 const path = require('path');
+const { error } = require('console');
 
 const app = express()
 
@@ -49,7 +50,7 @@ app.get('/info',(req,res)=> {
     `)
 })
 
-app.get('/api/persons/:id',(req,res)=>{
+app.get('/api/persons/:id',(req,res,next)=>{
     // const person = data.find((person)=>person.id === req.params.id)
     // if(person){
     //     return res.send(person)
@@ -66,11 +67,12 @@ app.get('/api/persons/:id',(req,res)=>{
         }
     }).catch((err)=>{
         console.log(err)
-        return res.status(500).send("internal server error can't find the user")
+        next(err)
+        // return res.status(500).send("internal server error can't find the user")
     })
 })
 
-app.delete('/api/deletepersons/:id',(req,res)=>{
+app.delete('/api/deletepersons/:id',(req,res,next)=>{
     const id = req.params.id
     // const person = data.filter((person)=> person.id !== req.params.id)
     // data.length = 0
@@ -83,32 +85,67 @@ app.delete('/api/deletepersons/:id',(req,res)=>{
         return res.status(200).end()
     })
     .catch((err)=>{ 
-        return res.status(500).send('server error can not delete the contact',err)
+        next(err)
     })
 })
 
-app.post('/api/addperson',(req,res)=>{
-    const {name, number} = req.body
-    // if(data.some((person)=> person.name === name || person.number === number )){
-    //     return res.status(400).send('the person name or number already exist')
-    // }
-    if(name === undefined || name === ""){
-        return res.status(400).send('name is not set, name filed required')
+app.put('/api/updateperson/:id',(req,res,next)=>{
+    const id = req.params.id
+    const updateValues = {
+        name:req.body.name,
+        number:req.body.number
     }
-    const newObj = new Contact({
-        name: name,
-        number : number,
-    })
-    newObj.save().then((res)=>{
-        console.log('data saved',res)
-    })
-    // data.push(newObj)
-    return res.status(200).send(newObj)
-})
+    Contact.findByIdAndUpdate(id,updateValues,{new:true}).then((dbres)=>{
+        return res.json(dbres)
+    }).catch(err=>next(err))
+});
 
+app.post('/api/addperson', (req, res, next) => {
+    const { name, number } = req.body;
+  
+    // if (!name) {
+    //   return res.status(400).send({ error: 'Name is required.' });
+    // }
+    // if (name.length < 3) {
+    //   return res.status(400).send({ error: `Name: Path 'name' ('${name}') is shorter than the minimum allowed length (3)` });
+    // }
+    
+    const nfCheck = (number) => /^\d{3}-\d{3}-\d{4}$/.test(number);
+    if (!number || !nfCheck(number)) {
+      return res.status(400).send({ error: `Number must be at least 8 digits long in the format '123-123-1324'` });
+    }
+    
+    const newObj = new Contact({
+      name,
+      number,
+    });
+  
+    newObj.save()
+      .then((savedContact) => {
+        console.log('Data saved:', savedContact);
+        res.status(200).json(savedContact);
+      }).catch((err) => next(err));
+  });
+  
+const errorHandel = (err,req,res,next)=>{
+    console.log(err);
+    if(err.name === 'CastError'){
+        return res.status(400).send({error:'maleformatted id'})
+    }
+    if(err.name === 'ValidationError'){
+        return res.status(400).json({error:'PhoneBook validation failed: name: Path `name` is required'})
+    }
+    next(err)
+}
+app.use(errorHandel)
+const globalErrorHandelar = (err,req,res,next)=>{
+    console.error(err.message);
+    return res.status(500).json({error:'somthing went wrong'});
+}
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
   });
+
 app.listen(3001,()=>{
     console.log("server is running at 3001")
 })
