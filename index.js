@@ -10,7 +10,7 @@ const app = express()
 app.use(express.json())
 app.use(morgan('tiny'))
 app.use(cors())
-app.use(express.static('dist'))
+// app.use(express.static('dist'))
 
 // const data = [
 //     { 
@@ -142,9 +142,9 @@ const globalErrorHandelar = (err,req,res,next)=>{
     console.error(err.message);
     return res.status(500).json({error:'somthing went wrong'});
 }
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-  });
+// app.get('*', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+//   });
 
 app.listen(3001,()=>{
     console.log("server is running at 3001")
